@@ -1,0 +1,106 @@
+************************************************************************
+Dimitar Dimitrov                                                 0922289
+CIS4500                                                               A2
+November 1, 2019
+************************************************************************
+
+This assignment uses data preprocessing techniques such as sentence 
+splitting, string tokenizing, token normalization, filtering, and
+stemming to build an index file based information retrieval model.
+
+Compilation
+-----------
+    - In addition to all the .java files listed in the makefile, make 
+      sure that "article.flex", "opennlp-tools-1.9.1.jar", 
+      "stopwords.txt", and the directory "OpenNLP_models", are all 
+      present in the root directory. These are needed at compile and 
+      run time.
+
+    - Compile in root directory with "make". This will generate all java
+      .class files necessary to run the programs.
+
+Usage
+-----
+    - If you need don't already have a split and tokenized version of the 
+      collection run the following command to generate the stemmed 
+      document:
+
+      java -cp opennlp-tools-1.9.1.jar:. SentenceSplitter < {INPUT_FILE} |
+      java Scanner | java -cp opennlp-tools-1.9.1.jar:. Preprocessor > 
+      {OUTPUT_FILE_STEMMED}
+
+    - If you have a splitted and tokenized version of the collection, 
+      simply feed this to the preprocessing program to generate the 
+      stemmed version:
+
+      java -cp opennlp-tools-1.9.1.jar:. Preprocessor < 
+      {INPUT_FILE_TOKENIZED} > {OUTPUT_FILE_STEMMED}
+
+    - Run the Indexer program to generate all the Inverted files like so:
+      java Indexer < {INPUT_FILE_STEMMED}
+
+    - Run the Retriever program with the dictionary, postings, and 
+      documentIds files as command line arguments respectively:
+
+      java -cp opennlp-tools-1.9.1.jar:. Retriever {DICTIONARY_FILE} 
+      {POSTINGS_FILE} {DOCIDS_FILE}
+
+Known Limitations
+-----------------
+    - Programs depend on the $DOC-$TITLE-$TEXT formatting for each document
+      provided as input.
+
+    - Little handling for user error
+
+    - Similarity values calculated in the Retriever program use a float 
+      value. Values will not be as precise and may be equal to similar 
+      to other similarity values.
+
+Further Changes
+---------------
+    - If more time was provided I would:
+        - Work on making my programs more robust by handling specific 
+          exceptions and user input errors
+
+        - Work to improve my Scanner program to handle more obscure
+          cases for tokens.
+
+        - Make code more efficient overall and client up the structure
+          by creating smaller methods that perform fewer things.
+
+Test Plan
+---------
+    - This test plan tests for correctness by examining differences in
+      calculations between program results and results found through 
+      empirical testing (by hand). All tests are done using queries 
+      specified in 'queries.txt' and the documents in 'documents.txt'.
+
+    - Go through sample queries in 'queries.txt'. Calculate the query 
+      vectors by hand and compare scores outputed by program. Do the 
+      same for documents matched in the dictionary. Differences between
+      the two should be minimal (nearest hundredth or so).
+
+    - Execute sample queries. See if top ranked documents in search 
+      results match those expected. Expected documents are considered
+      based on term frequency and topic of document when doing
+      manual search through 'documents.txt' file.
+
+    (1) Appears exactly in document
+        Input Query: 'timber'
+        Expected: '$DOC LA010190-0071, '$DOC LA010990-0122'
+
+    (2) Does not appear in any document
+        Input Query: 'garfield'
+        Expected: ''
+
+    (3) Multiple contexts - shoot - general
+        Input: 'shoot'
+        Expected: 'LA011090-0130, LA011190-0202, LA010690-0130, ...'
+
+    (4) Multiple contexts - shoot - refined (basketball)
+        Input: 'shoot basketball'
+        Expected: 'LA011090-0130, LA010390-0118, LA011190-0202, ...'
+
+    (5) Multiple contexts - shoot - refined (gun)
+        Input: 'shoot gun'
+        Expected: 'LA011190-0202, LA011090-0130, LA010490-0126, ...'
